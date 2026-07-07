@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài giảng · Tích vô hướng · MIT 18.02</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f4efe8;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .slide-container {
+            width: 100%;
+            max-width: 1200px;
+            aspect-ratio: 16 / 9;
+            background: #ffffff;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -8px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .slide-wrapper {
+            flex: 1;
+            padding: 1.2rem 2rem 1.2rem 2rem;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            background: #fefcf8;
+            position: relative;
+        }
+        .slide {
+            display: none;
+            height: 100%;
+            flex-direction: row;
+            align-items: stretch;
+            gap: 1rem;
+            animation: fadeSlide 0.3s ease;
+        }
+        .slide.active {
+            display: flex;
+        }
+        @keyframes fadeSlide {
+            0% { opacity: 0.4; transform: translateY(6px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            min-width: 0;
+        }
+        .slide-canvas-wrapper {
+            flex: 1.2;
+            min-width: 280px;
+            background: #faf8f5;
+            border-radius: 24px;
+            border: 1px solid #e8dfd6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            position: relative;
+        }
+        .slide-canvas-wrapper canvas {
+            width: 100%;
+            flex: 1;
+            border-radius: 16px;
+            background: #fefcf8;
+            min-height: 200px;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 10px;
+            padding: 5px 8px;
+            background: #f5f1ec;
+            border-radius: 14px;
+            margin-top: 4px;
+            width: 100%;
+            justify-content: center;
+        }
+        .controls label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #3e5360;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .controls input[type="range"] {
+            width: 50px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: #d6cbbc;
+            border-radius: 4px;
+            outline: none;
+        }
+        .controls input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #9f8b78;
+            cursor: pointer;
+        }
+        .controls input[type="range"]::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #9f8b78;
+            cursor: pointer;
+            border: none;
+        }
+        .controls .val {
+            font-size: 0.65rem;
+            color: #1f2e3b;
+            min-width: 18px;
+            text-align: center;
+            font-weight: 600;
+        }
+        h1, h2, h3 {
+            font-family: 'DM Serif Display', serif;
+            font-weight: 400;
+            color: #1f2e3b;
+            letter-spacing: -0.01em;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-top: 0.1rem;
+            margin-bottom: 0.2rem;
+            line-height: 1.2;
+            border-left: 6px solid #9f8b78;
+            padding-left: 1rem;
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin: 0.2rem 0 0.3rem 0;
+            color: #3b4d5b;
+        }
+        h3 {
+            font-size: 1.2rem;
+            color: #4a5f6e;
+            margin: 0.2rem 0 0.2rem 0;
+        }
+        .subhead {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #5b6f7d;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.2rem;
+        }
+        .bilingual {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+            margin: 0.15rem 0;
+        }
+        .en {
+            font-weight: 500;
+            color: #1a262f;
+            font-size: 0.9rem;
+        }
+        .vi {
+            font-weight: 400;
+            color: #465a67;
+            font-size: 0.85rem;
+            border-left: 2px solid #d6ccc0;
+            padding-left: 0.8rem;
+            margin-top: 0.05rem;
+        }
+        .quote {
+            background: #f1ede7;
+            padding: 0.4rem 1.2rem;
+            border-radius: 18px;
+            margin: 0.2rem 0;
+            border-left: 6px solid #9f8b78;
+        }
+        .quote p {
+            margin: 0.1rem 0;
+            font-size: 0.85rem;
+        }
+        .math {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            color: #1d2b35;
+        }
+        .audio-wrapper {
+            margin: 0.2rem 0 0.1rem 0;
+            background: #f5f1ec;
+            border-radius: 60px;
+            padding: 2px 8px 2px 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #e2d8ce;
+            max-width: 100%;
+            flex-wrap: wrap;
+        }
+        .audio-wrapper iframe {
+            max-width: 100%;
+            border-radius: 40px;
+            height: 44px;
+        }
+        .audio-label {
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: #3e5360;
+            background: #e8dfd6;
+            padding: 2px 8px;
+            border-radius: 40px;
+            letter-spacing: 0.3px;
+        }
+        .attribution {
+            font-size: 0.6rem;
+            color: #7f929f;
+            margin-top: 0.05rem;
+        }
+
+        /* Navigation */
+        .nav-overlay {
+            position: absolute;
+            bottom: 12px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .nav-overlay .nav-btn {
+            pointer-events: auto;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(4px);
+            border: 1px solid #d6cbbc;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1f2e3b;
+            padding: 0.2rem 0.7rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            line-height: 1.4;
+        }
+        .nav-overlay .nav-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(0.96);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+        }
+        .nav-overlay .nav-btn.primary {
+            background: #9f8b78;
+            color: #fcf8f2;
+            border-color: #9f8b78;
+        }
+        .nav-overlay .nav-btn.primary:hover {
+            background: #8a7764;
+            border-color: #8a7764;
+        }
+        .slide-counter {
+            pointer-events: auto;
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: #4a5f6e;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(4px);
+            padding: 0.1rem 0.7rem;
+            border-radius: 40px;
+            border: 1px solid #e2d8ce;
+        }
+
+        @media (max-width: 900px) {
+            .slide {
+                flex-direction: column;
+            }
+            .slide-wrapper { padding: 0.8rem; }
+            h1 { font-size: 1.4rem; padding-left: 0.6rem; }
+            h2 { font-size: 1.1rem; }
+            .slide-canvas-wrapper { min-height: 200px; flex: 0 0 auto; }
+            .slide-canvas-wrapper canvas { min-height: 180px; }
+            .controls input[type="range"] { width: 35px; }
+            .nav-overlay { bottom: 8px; padding: 0 8px; }
+            .nav-overlay .nav-btn { font-size: 0.7rem; padding: 0.15rem 0.5rem; }
+        }
+        .slide-wrapper::-webkit-scrollbar { width: 3px; }
+        .slide-wrapper::-webkit-scrollbar-track { background: #ede8e1; border-radius: 10px; }
+        .slide-wrapper::-webkit-scrollbar-thumb { background: #c5b7a8; border-radius: 10px; }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+    <div class="slide-wrapper" id="slideWrapper">
+        <!-- SLIDE 1: Vector 3D -->
+        <div class="slide active" data-index="0">
+            <div class="slide-content">
+                <div class="subhead">📐 MIT 18.02 · Đa biến · Fall 2007</div>
+                <h1>Bài 1: Tích vô hướng</h1>
+                <div class="bilingual">
+                    <span class="en">Vector <span class="math">A = ⟨a₁, a₂, a₃⟩</span></span>
+                    <span class="vi">Vectơ <span class="math">A = ⟨a₁, a₂, a₃⟩</span></span>
+                </div>
+                <div class="bilingual">
+                    <span class="en">Length: <span class="math">|A| = √(a₁² + a₂² + a₃²)</span></span>
+                    <span class="vi">Độ dài: <span class="math">|A| = √(a₁² + a₂² + a₃²)</span></span>
+                </div>
+                <div class="quote">
+                    <p class="en">“A vector has both direction and magnitude.”</p>
+                    <p class="vi">“Vectơ có cả hướng và độ lớn.”</p>
+                </div>
+                <div class="audio-wrapper">
+                    <span class="audio-label">🎙️ Giảng</span>
+                    <iframe width="300" height="60" src="https://vocaroo.com/embed/12LtZ9RPPfVD?autoplay=0" frameborder="0" allow="autoplay"></iframe>
+                </div>
+                <div class="attribution">MIT 18.02 · Giáo sư Denis Auroux</div>
+            </div>
+            <div class="slide-canvas-wrapper">
+                <canvas id="canvas0"></canvas>
+                <div class="controls" id="controls0">
+                    <label>a₁ <input type="range" min="-5" max="5" step="0.1" value="3" id="s0_1"><span class="val" id="v0_1">3</span></label>
+                    <label>a₂ <input type="range" min="-5" max="5" step="0.1" value="2" id="s0_2"><span class="val" id="v0_2">2</span></label>
+                    <label>a₃ <input type="range" min="-5" max="5" step="0.1" value="1" id="s0_3"><span class="val" id="v0_3">1</span></label>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: Vector Addition -->
+        <div class="slide" data-index="1">
+            <div class="slide-content">
+                <h2>➕ Cộng vector</h2>
+                <div class="bilingual">
+                    <span class="en"><span class="math">A + B = ⟨a₁+b₁, a₂+b₂, a₃+b₃⟩</span></span>
+                    <span class="vi"><span class="math">A + B = ⟨a₁+b₁, a₂+b₂, a₃+b₃⟩</span></span>
+                </div>
+                <div class="quote">
+                    <p class="en">“Head-to-tail addition.”</p>
+                    <p class="vi">“Nối điểm cuối với điểm đầu.”</p>
+                </div>
+                <div class="audio-wrapper">
+                    <span class="audio-label">🎙️ Giảng</span>
+                    <iframe width="300" height="60" src="https://vocaroo.com/embed/12LtZ9RPPfVD?autoplay=0" frameborder="0" allow="autoplay"></iframe>
+                </div>
+            </div>
+            <div class="slide-canvas-wrapper">
+                <canvas id="canvas1"></canvas>
+                <div class="controls" id="controls1">
+                    <label>Aₓ <input type="range" min="-4" max="4" step="0.1" value="3" id="s1_ax"><span class="val" id="v1_ax">3</span></label>
+                    <label>Aᵧ <input type="range" min="-4" max="4" step="0.1" value="1.5" id="s1_ay"><span class="val" id="v1_ay">1.5</span></label>
+                    <label>A_z <input type="range" min="-3" max="3" step="0.1" value="0" id="s1_az"><span class="val" id="v1_az">0</span></label>
+                    <label>Bₓ <input type="range" min="-4" max="4" step="0.1" value="2" id="s1_bx"><span class="val" id="v1_bx">2</span></label>
+                    <label>Bᵧ <input type="range" min="-4" max="4" step="0.1" value="-1" id="s1_by"><span class="val" id="v1_by">-1</span></label>
+                    <label>B_z <input type="range" min="-3" max="3" step="0.1" value="2" id="s1_bz"><span class="val" id="v1_bz">2</span></label>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: Dot Product -->
+        <div class="slide" data-index="2">
+            <div class="slide-content">
+                <h2>⚫ Tích vô hướng</h2>
+                <div class="bilingual">
+                    <span class="en"><span class="math">A·B = a₁b₁ + a₂b₂ + a₃b₃</span></span>
+                    <span class="vi"><span class="math">A·B = a₁b₁ + a₂b₂ + a₃b₃</span></span>
+                </div>
+                <div class="bilingual">
+                    <span class="en"><span class="math">A·B = |A||B|cos θ</span></span>
+                    <span class="vi"><span class="math">A·B = |A||B|cos θ</span></span>
+                </div>
+                <div class="quote">
+                    <p class="en">“Dot product tells us about lengths and angles.”</p>
+                    <p class="vi">“Tích vô hướng cho biết về độ dài và góc.”</p>
+                </div>
+                <div class="audio-wrapper">
+                    <span class="audio-label">🎙️ Giảng</span>
+                    <iframe width="300" height="60" src="https://vocaroo.com/embed/12LtZ9RPPfVD?autoplay=0" frameborder="0" allow="autoplay"></iframe>
+                </div>
+            </div>
+            <div class="slide-canvas-wrapper">
+                <canvas id="canvas2"></canvas>
+                <div class="controls" id="controls2">
+                    <label>|A| <input type="range" min="1" max="5" step="0.1" value="3.5" id="s2_lenA"><span class="val" id="v2_lenA">3.5</span></label>
+                    <label>|B| <input type="range" min="1" max="5" step="0.1" value="2.8" id="s2_lenB"><span class="val" id="v2_lenB">2.8</span></label>
+                    <label>θ <input type="range" min="0" max="180" step="1" value="34" id="s2_angle"><span class="val" id="v2_angle">34°</span></label>
+                    <label>φ <input type="range" min="-90" max="90" step="1" value="20" id="s2_phi"><span class="val" id="v2_phi">20°</span></label>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: Angle between vectors -->
+        <div class="slide" data-index="3">
+            <div class="slide-content">
+                <h2>📐 Góc giữa hai vector</h2>
+                <div class="bilingual">
+                    <span class="en"><span class="math">cos θ = (A·B)/(|A||B|)</span></span>
+                    <span class="vi"><span class="math">cos θ = (A·B)/(|A||B|)</span></span>
+                </div>
+                <div class="quote">
+                    <p class="en">“We can find the angle using dot product.”</p>
+                    <p class="vi">“Ta có thể tìm góc bằng tích vô hướng.”</p>
+                </div>
+                <div class="audio-wrapper">
+                    <span class="audio-label">🎙️ Giảng</span>
+                    <iframe width="300" height="60" src="https://vocaroo.com/embed/12LtZ9RPPfVD?autoplay=0" frameborder="0" allow="autoplay"></iframe>
+                </div>
+            </div>
+            <div class="slide-canvas-wrapper">
+                <canvas id="canvas3"></canvas>
+                <div class="controls" id="controls3">
+                    <label>Aₓ <input type="range" min="-4" max="4" step="0.1" value="3" id="s3_ax"><span class="val" id="v3_ax">3</span></label>
+                    <label>Aᵧ <input type="range" min="-4" max="4" step="0.1" value="1" id="s3_ay"><span class="val" id="v3_ay">1</span></label>
+                    <label>A_z <input type="range" min="-4" max="4" step="0.1" value="0" id="s3_az"><span class="val" id="v3_az">0</span></label>
+                    <label>Bₓ <input type="range" min="-4" max="4" step="0.1" value="1" id="s3_bx"><span class="val" id="v3_bx">1</span></label>
+                    <label>Bᵧ <input type="range" min="-4" max="4" step="0.1" value="-2" id="s3_by"><span class="val" id="v3_by">-2</span></label>
+                    <label>B_z <input type="range" min="-4" max="4" step="0.1" value="2" id="s3_bz"><span class="val" id="v3_bz">2</span></label>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: Orthogonality -->
+        <div class="slide" data-index="4">
+            <div class="slide-content">
+                <h2>📐 Vuông góc</h2>
+                <div class="bilingual">
+                    <span class="en"><span class="math">A·B = 0 ⇔ A ⟂ B</span></span>
+                    <span class="vi"><span class="math">A·B = 0 ⇔ A ⟂ B</span></span>
+                </div>
+                <div class="bilingual">
+                    <span class="en">Sign: positive (acute), zero (90°), negative (obtuse)</span>
+                    <span class="vi">Dấu: dương (góc nhọn), không (90°), âm (góc tù)</span>
+                </div>
+                <div class="quote">
+                    <p class="en">“Dot product zero ⇔ perpendicular.”</p>
+                    <p class="vi">“Tích vô hướng bằng 0 ⇔ vuông góc.”</p>
+                </div>
+                <div class="audio-wrapper">
+                    <span class="audio-label">🎙️ Giảng</span>
+                    <iframe width="300" height="60" src="https://vocaroo.com/embed/12LtZ9RPPfVD?autoplay=0" frameborder="0" allow="autoplay"></iframe>
+                </div>
+            </div>
+            <div class="slide-canvas-wrapper">
+                <canvas id="canvas4"></canvas>
+                <div class="controls" id="controls4">
+                    <label>Aₓ <input type="range" min="-4" max="4" step="0.1" value="2" id="s4_ax"><span class="val" id="v4_ax">2</span></label>
+                    <label>Aᵧ <input type="range" min="-4" max="4" step="0.1" value="1" id="s4_ay"><span class="val" id="v4_ay">1</span></label>
+                    <label>A_z <input type="range" min="-4" max="4" step="0.1" value="0" id="s4_az"><span class="val" id="v4_az">0</span></label>
+                    <label>Bₓ <input type="range" min="-4" max="4" step="0.1" value="1" id="s4_bx"><span class="val" id="v4_bx">1</span></label>
+                    <label>Bᵧ <input type="range" min="-4" max="4" step="0.1" value="-2" id="s4_by"><span class="val" id="v4_by">-2</span></label>
+                    <label>B_z <input type="range" min="-4" max="4" step="0.1" value="0" id="s4_bz"><span class="val" id="v4_bz">0</span></label>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: Projection -->
+        <div class="slide" data-index="5">
+            <div class="slide-content">
+                <h2>📌 Hình chiếu</h2>
+                <div class="bilingual">
+                    <span class="en">Component: <span class="math">(A·B)/|A|</span></span>
+                    <span class="vi">Hình chiếu: <span class="math">(A·B)/|A|</span></span>
+                </div>
+                <div class="bilingual">
+                    <span class="en">Projection vector: <span class="math">proj_A B = ((A·B)/|A|²) A</span></span>
+                    <span class="vi">Vectơ hình chiếu: <span class="math">proj_A B = ((A·B)/|A|²) A</span></span>
+                </div>
+                <div class="quote">
+                    <p class="en">“Projection of B onto A.”</p>
+                    <p class="vi">“Hình chiếu của B lên A.”</p>
+                </div>
+                <div class="audio-wrapper">
+                    <span class="audio-label">🎙️ Giảng</span>
+                    <iframe width="300" height="60" src="https://vocaroo.com/embed/12LtZ9RPPfVD?autoplay=0" frameborder="0" allow="autoplay"></iframe>
+                </div>
+            </div>
+            <div class="slide-canvas-wrapper">
+                <canvas id="canvas5"></canvas>
+                <div class="controls" id="controls5">
+                    <label>Aₓ <input type="range" min="-4" max="4" step="0.1" value="3" id="s5_ax"><span class="val" id="v5_ax">3</span></label>
+                    <label>Aᵧ <input type="range" min="-4" max="4" step="0.1" value="1" id="s5_ay"><span class="val" id="v5_ay">1</span></label>
+                    <label>A_z <input type="range" min="-4" max="4" step="0.1" value="0" id="s5_az"><span class="val" id="v5_az">0</span></label>
+                    <label>Bₓ <input type="range" min="-4" max="4" step="0.1" value="2" id="s5_bx"><span class="val" id="v5_bx">2</span></label>
+                    <label>Bᵧ <input type="range" min="-4" max="4" step="0.1" value="-2" id="s5_by"><span class="val" id="v5_by">-2</span></label>
+                    <label>B_z <input type="range" min="-4" max="4" step="0.1" value="1" id="s5_bz"><span class="val" id="v5_bz">1</span></label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-overlay">
+        <button class="nav-btn" id="prevSlide">◀ Trước</button>
+        <span class="slide-counter" id="slideCounter">1 / 6</span>
+        <button class="nav-btn primary" id="nextSlide">Tiếp ▶</button>
+    </div>
+</div>
+
+<script>
+    // ============ NAVIGATION ============
+    (function() {
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevSlide');
+        const nextBtn = document.getElementById('nextSlide');
+        const counter = document.getElementById('slideCounter');
+        let current = 0;
+        const total = slides.length;
+
+        function updateSlide(index) {
+            slides.forEach((s, i) => {
+                s.classList.toggle('active', i === index);
+            });
+            counter.textContent = `${index+1} / ${total}`;
+            const wrapper = document.getElementById('slideWrapper');
+            if (wrapper) wrapper.scrollTop = 0;
+            setTimeout(() => drawAll(), 50);
+        }
+
+        function goTo(index) {
+            if (index < 0) index = total - 1;
+            if (index >= total) index = 0;
+            current = index;
+            updateSlide(current);
+        }
+
+        prevBtn.addEventListener('click', () => goTo(current - 1));
+        nextBtn.addEventListener('click', () => goTo(current + 1));
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+            else if (e.key === 'ArrowRight') { e.preventDefault(); goTo(current + 1); }
+        });
+        updateSlide(0);
+    })();
+
+    // ============ 3D PROJECTION HELPERS ============
+    function project3D(x, y, z, cx, cy, scale) {
+        // Isometric projection
+        const angleX = 0.615; // ~35.26 degrees
+        const angleY = 0.615;
+        const px = cx + (x - y) * scale * 0.5;
+        const py = cy + (x + y) * scale * 0.288 - z * scale * 0.5;
+        return { x: px, y: py };
+    }
+
+    function drawArrow3D(ctx, fromX, fromY, toX, toY, color) {
+        const headLen = 10;
+        const angle = Math.atan2(toY - fromY, toX - fromX);
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(toX, toY);
+        ctx.lineTo(toX - headLen * Math.cos(angle - 0.4), toY - headLen * Math.sin(angle - 0.4));
+        ctx.lineTo(toX - headLen * Math.cos(angle + 0.4), toY - headLen * Math.sin(angle + 0.4));
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function drawAxes3D(ctx, cx, cy, scale, label) {
+        const len = 4.5;
+        const colors = ['#e74c3c', '#27ae60', '#2c6b9e'];
+        const labels = ['x', 'y', 'z'];
+        
+        // Draw grid on XY plane
+        ctx.strokeStyle = 'rgba(200,200,200,0.3)';
+        ctx.lineWidth = 0.5;
+        for (let i = -4; i <= 4; i++) {
+            if (i === 0) continue;
+            // X lines
+            const p1 = project3D(i, -4, 0, cx, cy, scale);
+            const p2 = project3D(i, 4, 0, cx, cy, scale);
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+            // Y lines
+            const p3 = project3D(-4, i, 0, cx, cy, scale);
+            const p4 = project3D(4, i, 0, cx, cy, scale);
+            ctx.beginPath();
+            ctx.moveTo(p3.x, p3.y);
+            ctx.lineTo(p4.x, p4.y);
+            ctx.stroke();
+        }
+
+        // Axes
+        const axes = [
+            [len, 0, 0],
+            [0, len, 0],
+            [0, 0, len]
+        ];
+        axes.forEach((axis, i) => {
+            const p1 = project3D(0, 0, 0, cx, cy, scale);
+            const p2 = project3D(axis[0], axis[1], axis[2], cx, cy, scale);
+            ctx.strokeStyle = colors[i];
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+            ctx.fillStyle = colors[i];
+            ctx.font = '13px Inter, sans-serif';
+            ctx.fillText(labels[i], p2.x + 6, p2.y - 4);
+            // Arrow head
+            drawArrow3D(ctx, p1.x, p1.y, p2.x, p2.y, colors[i]);
+        });
+
+        // Origin label
+        ctx.fillStyle = '#7f929f';
+        ctx.font = '11px Inter, sans-serif';
+        const origin = project3D(0, 0, 0, cx, cy, scale);
+        ctx.fillText('O', origin.x - 18, origin.y + 18);
+
+        if (label) {
+            ctx.fillStyle = '#1f2e3b';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText(label, 15, 25);
+        }
+    }
+
+    // ============ BIND SLIDERS ============
+    function bindSliders(slideId, drawFunc) {
+        const slide = document.querySelector(`.slide[data-index="${slideId}"]`);
+        if (!slide) return;
+        const inputs = slide.querySelectorAll('input[type="range"]');
+        inputs.forEach(input => {
+            const valSpan = input.parentElement.querySelector('.val');
+            input.addEventListener('input', function() {
+                if (valSpan) {
+                    valSpan.textContent = this.value + (this.id.includes('angle') || this.id.includes('phi') ? '°' : '');
+                }
+                drawFunc();
+            });
+        });
+    }
+
+    // ============ DRAW FUNCTIONS ============
+    function drawAll() {
+        drawVector3D();
+        drawVectorAdd();
+        drawDotProduct();
+        drawAngle3D();
+        drawOrthogonal();
+        drawProjection();
+    }
+
+    // --- SLIDE 0: Vector 3D ---
+    function drawVector3D() {
+        const canvas = document.getElementById('canvas0');
+        if (!canvas || !canvas.parentElement) return;
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const w = rect.width - 16;
+        const h = rect.height - 16 - 50;
+        if (w < 10 || h < 10) return;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const ax = parseFloat(document.getElementById('s0_1')?.value || 3);
+        const ay = parseFloat(document.getElementById('s0_2')?.value || 2);
+        const az = parseFloat(document.getElementById('s0_3')?.value || 1);
+
+        const cx = w/2, cy = h/2 + 20;
+        const scale = Math.min(w, h) / 9;
+        ctx.clearRect(0, 0, w, h);
+
+        drawAxes3D(ctx, cx, cy, scale, 'Hệ tọa độ 3D');
+
+        // Draw vector A
+        const origin = project3D(0, 0, 0, cx, cy, scale);
+        const end = project3D(ax, ay, az, cx, cy, scale);
+
+        ctx.strokeStyle = '#2c6b9e';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.moveTo(origin.x, origin.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.stroke();
+        drawArrow3D(ctx, origin.x, origin.y, end.x, end.y, '#2c6b9e');
+
+        // Projection lines
+        ctx.strokeStyle = 'rgba(44,107,158,0.2)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        // To XY plane
+        const xyEnd = project3D(ax, ay, 0, cx, cy, scale);
+        ctx.beginPath();
+        ctx.moveTo(end.x, end.y);
+        ctx.lineTo(xyEnd.x, xyEnd.y);
+        ctx.stroke();
+        // To XZ plane
+        const xzEnd = project3D(ax, 0, az, cx, cy, scale);
+        ctx.beginPath();
+        ctx.moveTo(end.x, end.y);
+        ctx.lineTo(xzEnd.x, xzEnd.y);
+        ctx.stroke();
+        // To YZ plane
+        const yzEnd = project3D(0, ay, az, cx, cy, scale);
+        ctx.beginPath();
+        ctx.moveTo(end.x, end.y);
+        ctx.lineTo(yzEnd.x, yzEnd.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // End point
+        ctx.fillStyle = '#c0392b';
+        ctx.beginPath();
+        ctx.arc(end.x, end.y, 6, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#1f2e3b';
+        ctx.font = '13px Inter, sans-serif';
+        ctx.fillText(`A = ⟨${ax.toFixed(1)}, ${ay.toFixed(1)}, ${az.toFixed(1)}⟩`, end.x - 40, end.y - 18);
+
+        const len = Math.sqrt(ax*ax + ay*ay + az*az);
+        ctx.fillStyle = '#7f929f';
+        ctx.font = '12px Inter, sans-serif';
+        ctx.fillText(`|A| = ${len.toFixed(2)}`, 15, 50);
+    }
+
+    // --- SLIDE 1: Vector Addition ---
+    function drawVectorAdd() {
+        const canvas = document.getElementById('canvas1');
+        if (!canvas || !canvas.parentElement) return;
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const w = rect.width - 16;
+        const h = rect.height - 16 - 50;
+        if (w < 10 || h < 10) return;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const ax = parseFloat(document.getElementById('s1_ax')?.value || 3);
+        const ay = parseFloat(document.getElementById('s1_ay')?.value || 1.5);
+        const az = parseFloat(document.getElementById('s1_az')?.value || 0);
+        const bx = parseFloat(document.getElementById('s1_bx')?.value || 2);
+        const by = parseFloat(document.getElementById('s1_by')?.value || -1);
+        const bz = parseFloat(document.getElementById('s1_bz')?.value || 2);
+
+        const cx = w/2 - 30, cy = h/2 + 20;
+        const scale = Math.min(w, h) / 10;
+        ctx.clearRect(0, 0, w, h);
+
+        drawAxes3D(ctx, cx, cy, scale, 'Cộng vector trong 3D');
+
+        const origin = project3D(0, 0, 0, cx, cy, scale);
+        const aEnd = project3D(ax, ay, az, cx, cy, scale);
+        const bEnd = project3D(ax + bx, ay + by, az + bz, cx, cy, scale);
+
+        // A
+        ctx.strokeStyle = '#2c6b9e';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(origin.x, origin.y);
+        ctx.lineTo(aEnd.x, aEnd.y);
+        ctx.stroke();
+        drawArrow3D(ctx, origin.x, origin.y, aEnd.x, aEnd.y, '#2c6b9e');
+        ctx.fillStyle = '#2c6b9e';
+        ctx.font = '12px Inter, sans-serif';
+        ctx.fillText('A', (origin.x+aEnd.x)/2 - 20, (origin.y+aEnd.y)/2 - 8);
+
+        // B (from A's end)
+        const bStart = aEnd;
+        const bEnd2 = project3D(ax + bx, ay + by, az + bz, cx, cy, scale);
+        ctx.strokeStyle = '#27ae60';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(bStart.x, bStart.y);
+        ctx.lineTo(bEnd2.x, bEnd2.y);
+        ctx.stroke();
+        drawArrow3D(ctx, bStart.x, bStart.y, bEnd2.x, bEnd2.y, '#27ae60');
+        ctx.fillStyle = '#27ae60';
+        ctx.fillText('B', (bStart.x+bEnd2.x)/2 - 20, (bStart.y+bEnd2.y)/2 - 8);
+
+        // A+B
+        ctx.strokeStyle = '#c0392b';
+        ctx.lineWidth = 3.5;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        ctx.moveTo(origin.x, origin.y);
+        ctx.lineTo(bEnd2.x, bEnd2.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        drawArrow3D(ctx, origin.x, origin.y, bEnd2.x, bEnd2.y, '#c0392b');
+        ctx.fillStyle = '#c0392b';
+        ctx.font = '13px Inter, sans-serif';
+        ctx.fillText('A+B', (origin.x+bEnd2.x)/2 - 30, (origin.y+bEnd2.y)/2 - 14);
+
+        ctx.fillStyle = '#7f929f';
+        ctx.font = '10px Inter, sans-serif';
+        ctx.fillText(`A=(${ax.toFixed(1)},${ay.toFixed(1)},${az.toFixed(1)}) B=(${bx.toFixed(1)},${by.toFixed(1)},${bz.toFixed(1)})`, 15, 50);
+    }
+
+    // --- SLIDE 2: Dot Product ---
+    function drawDotProduct() {
+        const canvas = document.getElementById('canvas2');
+        if (!canvas || !canvas.parentElement) return;
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const w = rect.width - 16;
+        const h = rect.height - 16 - 50;
+        if (w < 10 || h < 10) return;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const lenA = parseFloat(document.getElementById('s2_lenA')?.value || 3.5);
+        const lenB = parseFloat(document.getElementById('s2_lenB')?.value || 2.8);
+        const thetaDeg = parseFloat(document.getElementById('s2_angle')?.value || 34);
+        const phiDeg = parseFloat(document.getElementById('s2_phi')?.value || 20);
+        const theta = thetaDeg * Math.PI / 180;
+        const phi = phiDeg * Math.PI / 180;
+
+        const cx = w/2 - 20, cy = h/2 + 20;
+        const scale = Math.min(w, h) / 10;
+        ctx.clearRect(0, 0, w, h);
+
+        drawAxes3D(ctx, cx, cy, scale, '');
+
+        const origin = project3D(0, 0, 0, cx, cy, scale);
+        // A along x-axis
+        const aEnd = project3D(lenA, 0, 0, cx, cy, scale);
+        // B with angles
+        const bx = lenB * Math.cos(theta) * Math.cos(phi);
+        const by = lenB * Math.sin(theta) * Math.cos(phi);
+        const bz = lenB * Math.sin(phi);
+        const bEnd = project3D(bx, by, bz, cx, cy, scale);
+
+        // A
+        ctx.strokeStyle = '#2c6b9e';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(origin.x, origin.y);
+        ctx.lineTo(aEnd.x, aEnd.y);
+        ctx.stroke();
+        drawArrow3D(ctx, origin.x, origin.y, aEnd.x, aEnd.y, '#2c6b9e');
+        ctx.fillStyle = '#2c6b9e';
+        ctx.font = '13px Inter, sans-serif';
+        ctx.fillText('A', (origin.x+aEnd.x)/2 - 15, (origin.y+aEnd.y)/2 - 10);
+
+        // B
+        ctx.strokeStyle = '#27ae60';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(origin.x, origin.y);
+        ctx.lineTo(bEnd.x, bEnd.y);
+        ctx.stroke();
+        drawArrow3D(ctx, origin.x, origin.y, bEnd.x, bEnd.y, '#27ae60');
+        ctx.fillStyle = '#27ae60';
+        ctx.fillText('B', (origin.x+bEnd.x)/2 + 5, (origin.y+bEnd.y)/2 - 10);
+
+        // Angle arc in 3D (projected)
+        ctx.strokeStyle = '#c0392b';
+        ctx.lineWidth = 2;
+        const arcPoints = 30;
+        ctx.beginPath();
+        for (let i = 0; i <= arcPoints; i++) {
+            const t = i / arcPoints;
+            const angle = t * theta;
+            const px = lenA * 0.35 * Math.cos(angle) * Math.cos(phi * t);
+            const py = lenA * 0.35 * Math.sin(angle) * Math.cos(phi * t);
+            const pz = lenA * 0.35 * Math.sin(phi * t);
+            const p = project3D(px, py, pz, cx, cy, scale);
+            if (i === 0) ctx.moveTo(p.x, p.y);
+            else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+        ctx.fillStyle = '#c0392b';
+        ctx.font = '13px Inter, sans-serif';
+        ctx.fillText('θ', origin.x + 40, origin.y - 20);
+
+        const dot = lenA * lenB * Math.cos(theta);
+        ctx.fillStyle = '#1f2e3b';
+        ctx.font = '12px Inter, sans-serif';
+        ctx.fillText(`A·B = ${dot.toFixed(2)}`, 15, 30);
+        ctx.fillStyle = '#7f929f';
+        ctx.font = '10px Inter, sans-serif';
+        ctx.fillText(`|A|=${lenA.toFixed(1)} |B|=${lenB.toFixed(1)} θ=${thetaDeg.toFixed(0)}° φ=${phiDeg.toFixed(0)}°`, 15, 50);
+    }
+
+    // --- SLIDE 3: Angle between vectors ---
+    function drawAngle3D() {
+        const canvas = document.getElementById('canvas3');
+        if (!canvas || !canvas.parentElement) return;
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const w = rect.width - 16;
+        const h = rect.height - 16 - 50;
+        if (w < 10 || h < 10) return;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const ax = parseFloat(document.getElementById('s3_ax')?.value || 3);
+        const ay = parseFloat(document.getElementById('s3_ay')?.value || 1);
+        const az = parseFloat(document.getElementById('s3_az')?.value || 0);
+        const bx = parseFloat(document.getElementById('s3_bx')?.value || 1);
+        const by = parseFloat(document.getElementById('s3_by')?.value || -2);
+        const bz = parseFloat(document.getElementById('s3_bz')?.value || 2);
+
+        const cx = w/2 - 20, cy = h/2 + 20;
+        const scale = Math.min(w, h) / 10;
+        ctx.clearRect(0, 0, w, h);
+
+        drawAxes3D(ctx, cx, cy, scale, '');
+
+        const origin = project3D(0, 0, 0, cx, cy, scale);
+        const aEnd = project3D(ax, ay, az, cx, cy, scale);
+        const bEnd = project3D(bx, by, bz, cx, cy, scale);
+
+        // A
+        ctx.strokeStyle = '#2c6b9e';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(origin.x, origin.y);
+        ctx.lineTo(aEnd.x, aEnd.y);
+        ctx.stroke();
+        drawArrow3D(ctx, origin.x, origin.y, aEnd.x, aEnd.y, '#2c6b9e');
+        ctx.fillStyle = '#2c6b9e';
+        ctx.font = '13px Inter, sans-serif';
+        ctx.fillText('A', (origin.x+aEnd.x)/2 - 18, (origin.y+aEnd.y)/2 - 8);
+
+        // B
+        ctx.strokeStyle = '#27ae60';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(origin.x, origin.y);
+        ctx.lineTo(bEnd.x, bEnd.y);
+        ctx.stroke();
+        drawArrow3D(ctx, origin.x, origin.y, bEnd.x, bEnd.y, '#27ae60');
+        ctx.fillStyle = '#27ae60';
+        ctx.fillText('B', (origin.x+bEnd.x)/2 + 5, (origin.y+bEnd.y)/2 - 10);
+
+        // Angle arc
+        const lenA = Math.sqrt(ax*ax + ay*ay + az*az);
+        const lenB = Math.sqrt(bx*bx + by*by + bz*bz);
+        const dot = ax*bx + ay*by + az*bz;
+        const cosTheta = Math.max(-1, Math.min(1, dot / (lenA * lenB)));
+        const theta = Math.acos(cosTheta);
+        const thetaDeg = theta * 180 / Math.PI;
+
+        ctx.strokeStyle = '#e67e22';
+        ctx.lineWidth = 2;
+        const arcPoints = 30;
+        const r = 0.35;
+        ctx.beginPath();
+        for (let i = 0; i <= arcPoints; i++) {
+            const t = i / arcPoints;
+            const angle = t * theta;
+            // Interpolate between A and B directions
+            const ux = ax/lenA * r * lenA * Math.cos(angle) + bx/lenB * r * lenA * Math.sin(angle) / (Math.sin(theta) || 1);
+            const uy = ay/lenA * r * lenA * Math.cos(angle) + by/lenB * r * lenA * Math.sin(angle) / (Math.sin(theta) || 1);
+            const uz = az/lenA * r * lenA * Math.cos(angle) + bz/lenB * r * lenA * Math.sin(angle) / (Math.sin(theta) || 1);
+            const p = project3D(ux, uy, uz, cx, cy, scale);
+            if (i === 0) ctx.moveTo(p.x, p.y);
+            else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+        ctx.fillStyle = '#e67e22';
+        ctx.font = '13px Inter, sans-serif';
+        ctx.fillText(`θ=${thetaDeg.toFixed(1)}°`, origin.x + 35, origin.y - 25);
+
+        ctx.fillStyle = '#1f2e3b';
+        ctx.font = '11px Inter, sans-serif';
+        ctx.fillText(`A·B = ${dot.toFixed(2)}`, 15, 30);
+        ctx.fillStyle = '#7f929f';
+        ctx.font = '10px Inter, sans-serif';
+        ctx.fillText(`cos θ = ${cosTheta.toFixed(4)}`, 15, 50);
+    }
+
+    // --- SLIDE 4: Orthogonal ---
+    function drawOrthogonal() {
+        const canvas = document.getElementById('canvas4');
+        if (!canvas || !canvas.parentElement) return;
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const w = rect.width - 16;
+        const h = rect.height - 16 - 50;
+        if (w < 10 || h < 10) return;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const ax = parseFloat(document.getElementById('s4_ax')?.value || 2);
+        const ay = parseFloat(document.getElementById('s4_ay')?.value || 1);
+        const az = parseFloat(document.getElementById('s4_az')?.value || 0);
+        const bx = parseFloat(document.getElementById('s4_bx')?.value || 1);
+        const by = parseFloat(document.getElementById('s4_by')?.value || -2);
+        const bz = parseFloat(document.getElementById('s4_bz')?.value || 0);
+
+        const cx = w/2 - 20, cy = h/2 + 20;
+        const scale = Math.min(w, h) / 10;
+        ctx.clearRect(0, 0, w, h);
+
+        drawAxes3D(ctx, cx, cy, scale, '');
+
+        const origin = project3D(0, 0, 0, cx, cy, scale);
+        const aEnd = project3D(ax, ay, az, cx, cy, scale);
+        const bEnd = project3D(bx, by, bz, cx, cy, scale);
+
+        // A
+        ctx.strokeStyle = '#2c6b9e';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(origin.x, origin.y);
+        ctx.lineTo(aEnd.x, aEnd.y);
+        ctx.stroke();
+        drawArrow3D(ctx, origin.x, origin.y, aEnd.x, aEnd.y, '#2c6b9e');
+        ctx.fillStyle = '#2c6b9e';
+        ctx.font = '13px Inter, sans-serif';
+        ctx.fillText('A', (origin.x+aEnd.x)/2 - 15, (origin.y+aEnd.y)/2 - 8);
+
+        // B
+        ctx.strokeStyle = '#27ae60';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(origin.x, origin.y);
+        ctx.lineTo(bEnd.x, bEnd.y);
+        ctx.stroke();
+        drawArrow3D(ctx, origin.x, origin.y, bEnd.x, bEnd.y, '#27ae60');
+        ctx.fillStyle = '#27ae60';
+        ctx.fillText('B', (origin.x+bEnd.x)/2 + 5, (origin.y+bEnd.y)/2 - 8);
+
+        const dot = ax*bx + ay*by + az*bz;
+        const isPerp = Math.abs(dot) < 0.05;
+
+        // Right angle indicator
+        ctx.strokeStyle = '#c0392b';
+        ctx.lineWidth = 2;
+        const r = 18;
+        // Project right angle marker (approximate)
+        const aDir = Math.atan2(aEnd.y - origin.y, aEnd.x - origin.x);
+        const bDir = Math.atan2(bEnd.y - origin.y, bEnd.x - origin.x);
+        const midAngle = (aDir + bDir) / 2;
+        const p1 = { x: origin.x + r * Math.cos(aDir), y: origin.y + r * Math.sin(aDir) };
+        const p2 = { x: origin.x + r * Math.cos(aDir) + r * Math.cos(bDir), y: origin.y + r * Math.sin(aDir) + r * Math.sin(bDir) };
+        const p3 = { x: origin.x + r * Math.cos(bDir), y: origin.y + r * Math.sin(bDir) };
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.lineTo(p3.x, p3.y);
+        ctx.stroke();
+
+        ctx.fillStyle = '#c0392b';
+        ctx.font = '12px Inter, sans-serif';
+        ctx.fillText(isPerp ? '90° ✅' : `${(Math.acos(Math.max(-1,Math.min(1,dot/(Math.sqrt(ax*ax+ay*ay+az*az)*Math.sqrt(bx*bx+by*by+bz*bz)))))*180/Math.PI).toFixed(1)}°`, origin.x + 30, origin.y - 25);
+
+        ctx.fillStyle = '#1f2e3b';
+        ctx.font = '12px Inter, sans-serif';
+        ctx.fillText(`A·B = ${dot.toFixed(2)} ${isPerp ? '✅ Vuông góc' : ''}`, 15, 30);
+        ctx.fillStyle = '#7f929f';
+        ctx.font = '10px Inter, sans-serif';
+        ctx.fillText(`A=(${ax.toFixed(1)},${ay.toFixed(1)},${az.toFixed(1)}) B=(${bx.toFixed(1)},${by.toFixed(1)},${bz.toFixed(1)})`, 15, 50);
+    }
+
+    // --- SLIDE 5: Projection ---
+    function drawProjection() {
+        const canvas = document.getElementById('canvas5');
+        if (!canvas || !canvas.parentElement) return;
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const w = rect.width - 16;
+        const h = rect.height - 16 - 50;
+        if (w < 10 || h < 10) return;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const ax = parseFloat(document.getElementById('s5_ax')?.value || 3);
+        const ay = parseFloat(document.getElementById('s5_ay')?.value || 1);
+        const az = parseFloat(document.getElementById('s5_az')?.value || 0);
+        const bx = parseFloat(document.getElementById('s5_bx')?.value || 2);
+        const by = parseFloat(document.getElementById('s5_by')?.value || -2);
+        const bz = parseFloat(document.getElementById('s5_bz')?.value || 1);
+
+        const cx = w/2 - 20, cy = h/2 + 20;
+        const scale = Math.min(w, h) / 10;
+        ctx.clearRect(0, 0, w, h);
+
+        drawAxes3D(ctx, cx, cy, scale, '');
+
+        const origin = project3D(0, 0, 0, cx, cy, scale);
+        const aEnd = project3D(ax, ay, az, cx, cy, scale);
+        const bEnd = project3D(bx, by, bz, cx, cy, scale);
+
+        // A
+        ctx.strokeStyle = '#2c6b9e';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(origin.x, origin.y);
+        ctx.lineTo(aEnd.x, aEnd.y);
+        ctx.stroke();
+        drawArrow3D(ctx, origin.x, origin.y, aEnd.x, aEnd.y, '#2c6b9e');
+        ctx.fillStyle = '#2c6b9e';
+        ctx.font = '13px Inter, sans-serif';
+        ctx.fillText('A', (origin.x+aEnd.x)/2 - 15, (origin.y+aEnd.y)/2 - 10);
+
+        // B
+        ctx.strokeStyle = '#27ae60';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(origin.x, origin.y);
+        ctx.lineTo(bEnd.x, bEnd.y);
+        ctx.stroke();
+        drawArrow3D(ctx, origin.x, origin.y, bEnd.x, bEnd.y, '#27ae60');
+        ctx.fillStyle = '#27ae60';
+        ctx.fillText('B', (origin.x+bEnd.x)/2 + 5, (origin.y+bEnd.y)/2 - 10);
+
+        // Projection
+        const lenA = Math.sqrt(ax*ax + ay*ay + az*az);
+        const dot = ax*bx + ay*by + az*bz;
+        const projScale = dot / (lenA * lenA);
+        const projX = projScale * ax;
+        const projY = projScale * ay;
+        const projZ = projScale * az;
+        const projEnd = project3D(projX, projY, projZ, cx, cy, scale);
+
+        ctx.strokeStyle = '#c0392b';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(origin.x, origin.y);
+        ctx.lineTo(projEnd.x, projEnd.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        drawArrow3D(ctx, origin.x, origin.y, projEnd.x, projEnd.y, '#c0392b');
+
+        // Perpendicular line from B to projection
+        ctx.strokeStyle = '#e67e22';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(bEnd.x, bEnd.y);
+        ctx.lineTo(projEnd.x, projEnd.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Right angle marker at projection point
+        const aDir = Math.atan2(aEnd.y - origin.y, aEnd.x - origin.x);
+        const perpDir = Math.atan2(bEnd.y - projEnd.y, bEnd.x - projEnd.x);
+        const r2 = 12;
+        const pp1 = { x: projEnd.x + r2 * Math.cos(aDir), y: projEnd.y + r2 * Math.sin(aDir) };
+        const pp2 = { x: projEnd.x + r2 * Math.cos(aDir) + r2 * Math.cos(perpDir), y: projEnd.y + r2 * Math.sin(aDir) + r2 * Math.sin(perpDir) };
+        const pp3 = { x: projEnd.x + r2 * Math.cos(perpDir), y: projEnd.y + r2 * Math.sin(perpDir) };
+        ctx.strokeStyle = '#c0392b';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(pp1.x, pp1.y);
+        ctx.lineTo(pp2.x, pp2.y);
+        ctx.lineTo(pp3.x, pp3.y);
+        ctx.stroke();
+
+        ctx.fillStyle = '#c0392b';
+        ctx.font = '11px Inter, sans-serif';
+        ctx.fillText('proj_A B', (origin.x+projEnd.x)/2 - 35, (origin.y+projEnd.y)/2 - 14);
+
+        const projLen = dot / lenA;
+        ctx.fillStyle = '#1f2e3b';
+        ctx.font = '11px Inter, sans-serif';
+        ctx.fillText(`|proj| = ${projLen.toFixed(2)}`, 15, 30);
+        ctx.fillStyle = '#7f929f';
+        ctx.font = '10px Inter, sans-serif';
+        ctx.fillText(`A·B = ${dot.toFixed(2)}`, 15, 48);
+    }
+
+    // ============ BIND SLIDERS ============
+    bindSliders(0, drawVector3D);
+    bindSliders(1, drawVectorAdd);
+    bindSliders(2, drawDotProduct);
+    bindSliders(3, drawAngle3D);
+    bindSliders(4, drawOrthogonal);
+    bindSliders(5, drawProjection);
+
+    // ============ INIT ============
+    window.addEventListener('load', () => {
+        setTimeout(drawAll, 150);
+    });
+    window.addEventListener('resize', drawAll);
+
+    const observer = new MutationObserver(() => {
+        setTimeout(drawAll, 100);
+    });
+    document.querySelectorAll('.slide-canvas-wrapper').forEach(el => {
+        observer.observe(el, { attributes: true, attributeFilter: ['style'] });
+    });
+</script>
+</body>
+</html>
